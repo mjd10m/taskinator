@@ -4,6 +4,7 @@ var taskIdCounter = 0;
 var pageContentE1 = document.querySelector("#page-content");
 var taskInProgressE1 = document.querySelector("#tasks-in-progress");
 var taskCompletedE1 = document.querySelector("#tasks-completed");
+var tasks = []
 
 function taskFormHandler(event) {
     event.preventDefault();
@@ -27,7 +28,8 @@ function taskFormHandler(event) {
     //package data as object
         var taskDataObj = {
             name: taskNameInput,
-            type: taskTypeInput
+            type: taskTypeInput,
+            status: "to-do"
         };
         createTaskEl(taskDataObj);
     }
@@ -56,6 +58,10 @@ function createTaskEl(taskDataObj) {
     
     //add list item to list
     tasksToDoE1.appendChild(listItemE1);
+
+    //add created task to array
+    taskDataObj.id = taskIdCounter;
+    tasks.push(taskDataObj);
     
     taskIdCounter++;
 }
@@ -124,6 +130,15 @@ function taskButtonHandler(event) {
 function deleteTask(taskId) {
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
     taskSelected.remove();
+
+    var updatedTaskArr = []
+
+    for (i = 0; i < tasks.length; i++) {
+        if (tasks[i] !== parseInt(taskId)) {
+            updatedTaskArr.push(task[i]);
+        }
+    }
+    tasks=updatedTaskArr
 };
 
 function editTask(taskId) {
@@ -145,6 +160,16 @@ function completeEditTask(taskName, taskType, taskId) {
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
     taskSelected.querySelector("h3.task-name").textContent = taskName;
     taskSelected.querySelector("span.task-type").textContent = taskType;
+
+    //update task array for local storage
+
+    for (i=0; i<tasks.length; i++) {
+        if (tasks[i].id === parseInt(taskId)) {
+            tasks[i].name = taskName;
+            tasks[i].type = taskType;
+        }
+    }
+
     alert("Task Updated!");
     formE1.removeAttribute("data-task-id");
     document.querySelector("#save-task").textContent = "Add Task";
@@ -160,6 +185,13 @@ function taskStatusChangeHandler(event) {
         taskInProgressE1.appendChild(taskSelected);
     } else if (statusValue === "completed") {
         taskCompletedE1.appendChild(taskSelected);
+    }
+    
+    //update tasks array for storage
+    for (i = 0; i < tasks.length; i++) {
+        if (tasks[i] === parseInt(taskId)) {
+            tasks[i].status = statusValue;
+        }
     }
 };
 
